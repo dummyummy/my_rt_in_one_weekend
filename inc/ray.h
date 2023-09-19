@@ -1,14 +1,15 @@
-#pragma(once)
+#pragma once
 
-#include "vec.hpp"
+#include "vec.h"
 
-class Ray
+class ray
 {
 private:
     point3 orig;
     vec3 dir;
-    Ray() = delete;
-    Ray(const point3 &origin, const vec3 &direction)
+public:
+    ray() = delete;
+    ray(const point3 &origin, const vec3 &direction)
     : orig(origin), dir(direction) {}
 
     point3 origin() const

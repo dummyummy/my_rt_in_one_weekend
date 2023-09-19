@@ -26,7 +26,7 @@ else()
     find_package(PNG REQUIRED)
 endif()
 
-# add_subdirectory(lib)
+# add_subdirectory(inc)
 
 add_executable(tracer main.cpp)
 

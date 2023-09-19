@@ -449,7 +449,7 @@ enum {FALSE_WIN = 0};
 #define _cimg_redefine_Status
 #endif
 #include <cstddef>
-#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.h>
 #if CV_MAJOR_VERSION>=3
 #define _cimg_fourcc cv::VideoWriter::fourcc
 #define _cimg_cap_prop_frame_width cv::VideoCaptureProperties::CAP_PROP_FRAME_WIDTH
@@ -58818,7 +58818,7 @@ namespace cimg_library {
                !cimg::strcasecmp(ext,"dlm") ||
                !cimg::strcasecmp(ext,"txt")) return save_dlm(fn);
       else if (!cimg::strcasecmp(ext,"cpp") ||
-               !cimg::strcasecmp(ext,"hpp") ||
+               !cimg::strcasecmp(ext,"h") ||
                !cimg::strcasecmp(ext,"h") ||
                !cimg::strcasecmp(ext,"c")) return save_cpp(fn);
 
