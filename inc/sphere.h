@@ -11,7 +11,7 @@ private:
 public:
     sphere(point3 center, double radius)
     : center(center), radius(radius) {}
-    bool hit(const ray &ray, double tmin, double tmax, hit_record &rec) const override
+    bool hit(const ray &ray, interval ray_t, hit_record &rec) const override
     {
         auto oc = ray.origin() - center;
         double a = dot(ray.direction(), ray.direction());
@@ -23,10 +23,10 @@ public:
             return false;
         double sqrt_delta = sqrt(delta);
         auto root = (-h - sqrt_delta) / a;
-        if (root <= tmin || root >= tmax)
+        if (!ray_t.surrounds(root))
         {
             root = (-h + sqrt_delta) / a;
-            if (root <= tmin || root >= tmax)
+            if (!ray_t.surrounds(root))
                 return false;
         }
         rec.p = ray.at(root);
