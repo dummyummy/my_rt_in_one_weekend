@@ -7,10 +7,11 @@ class sphere: public hittable
 private:
     point3 center;
     double radius;
+    shared_ptr<material> mat;
 
 public:
-    sphere(point3 center, double radius)
-    : center(center), radius(radius) {}
+    sphere(point3 center, double radius, shared_ptr<material> mat)
+    : center(center), radius(radius), mat(mat) {}
     bool hit(const ray &ray, interval ray_t, hit_record &rec) const override
     {
         auto oc = ray.origin() - center;
@@ -32,6 +33,7 @@ public:
         rec.p = ray.at(root);
         rec.set_face_normal(ray, (rec.p - center) / radius);
         rec.t = root;
+        rec.mat = mat;
         return true;
     }
 };

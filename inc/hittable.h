@@ -1,12 +1,15 @@
 #pragma once
 
-#include "ray.h"
+#include "utils.h"
+
+class material;
 
 class hit_record
 {
 public:
     point3 p;
     vec3 normal; // must be unit vector
+    shared_ptr<material> mat;
     double t;
     bool front_face;
 

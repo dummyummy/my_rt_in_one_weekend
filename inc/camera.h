@@ -3,8 +3,8 @@
 #include "CImg.h"
 
 #include "utils.h"
-#include "color.h"
 #include "hittable.h"
+#include "material.h"
 
 class camera
 {
@@ -16,6 +16,7 @@ public:
     point3 center = point3(0, 0, 0);
     double focal_length = 1;
     int samples_per_row = 2; // stratified sampling
+    int max_depth = 10;
 
     void render(cimg_library::CImg<unsigned char> &image, const hittable &world) const
     {
@@ -30,7 +31,7 @@ public:
                     for (int i = 0; i < samples_per_row; i++)
                     {
                         ray ray = get_ray(x, y, i, j);
-                        pixel_color += ray_color(ray, world);
+                        pixel_color += ray_color(ray, max_depth, world);
                     }
                 pixel_color /= (samples_per_row * samples_per_row);
                 write_color(image, x, y, pixel_color);
@@ -85,7 +86,9 @@ private:
     ray get_ray(int x, int y, int i, int j) const
     {
         auto pixel_start = pixel00_loc + x * pixel_delta_u + y * pixel_delta_v; // upper left corner
-        auto jittered_pos = pixel_start + (i * pixel_delta_u + j * pixel_delta_v) / samples_per_row;
+        auto jittered_pos = pixel_start + 
+                            ((i + random_double()) * pixel_delta_u + 
+                            (j + random_double()) * pixel_delta_v) / samples_per_row;
 
         auto ray_origin = center;
         auto ray_direction = jittered_pos - ray_origin;
@@ -94,12 +97,19 @@ private:
     }
 
 
-    color ray_color(const ray &r, const hittable &world) const
+    color ray_color(const ray &r, int depth, const hittable &world) const
     {
+        if (depth <= 0)
+            return color(0, 0, 0);
         hit_record rec;
-        if (world.hit(r, interval(0, inf), rec))
+        if (world.hit(r, interval(0.001, inf), rec))
         {
-            return color(rec.normal + vec3(1, 1, 1)) * 0.5;
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scattered(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth - 1, world);
+            else
+                return color(0, 0, 0);
         }
         auto dir = unit(r.direction());
         double a = (dir.y() + 1) * 0.5;

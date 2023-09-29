@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include "util.h"
 
 using std::sqrt;
 
@@ -44,6 +45,22 @@ class vec3 {
 
     double length_squared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
+    }
+
+    bool near_zero() const
+    {
+        auto eps = 1e-8;
+        return fabs(e[0]) < eps && fabs(e[1]) < eps && fabs(e[2]) < eps;
+    }
+
+    static vec3 random()
+    {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    static vec3 random(double min, double max)
+    {
+        return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
     }
 };
 
@@ -95,4 +112,45 @@ inline vec3 cross(const vec3 &u, const vec3 &v) {
 
 inline vec3 unit(vec3 v) {
     return v / v.length();
+}
+
+inline vec3 random_in_unit_sphere()
+{
+    while (true)
+    {
+        auto p = vec3::random(-1, 1);
+        if (p.length_squared() < 1)
+            return p;
+    }
+}
+
+inline vec3 random_unit_vector()
+{
+    return unit(random_in_unit_sphere());
+}
+
+inline vec3 random_on_hemisphere(const vec3& normal)
+{
+    vec3 on_unit_sphere = random_unit_vector();
+    if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return on_unit_sphere;
+    else
+        return -on_unit_sphere;
+}
+
+inline vec3 reflect(const vec3 &i, const vec3 &n)
+{
+    return i - 2 * dot(i, n) * n;
+}
+
+/**
+ * @brief calculate refracted rays. normal is always in the opposite direction from i
+ * @param i incidence ray of unit length
+ */
+inline vec3 refract(const vec3 &i, const vec3 &n, double etai_over_etat)
+{
+    auto cos_theta = fmin(dot(-i, n), 1.0);
+    auto r_perp = etai_over_etat * (i + cos_theta * n);
+    auto r_para = -sqrt(fabs(1 - r_perp.length_squared())) * n;
+    return r_perp + r_para;
 }
