@@ -62,11 +62,29 @@ public:
         double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
         auto unit_direction = unit(r_in.direction());
         auto cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
-        auto sin_theta = sqrt(1.0 - cos_theta * cos_theta);
-        auto direction = (sin_theta * refraction_ratio > 1.0) ?
-                         reflect(unit_direction, rec.normal) :
-                         refract(unit_direction, rec.normal, refraction_ratio);
+        double reflectance = schlick(cos_theta, refraction_ratio);
+        vec3 direction;
+        if (reflectance > random_double())
+            direction = reflect(unit_direction, rec.normal);
+        else
+            direction = refract(unit_direction, rec.normal, refraction_ratio);
         scattered = ray(rec.p, direction);
         return true;
+    }
+
+private:
+    static double schlick(double cosine, double ref_idx) // Schlick Approximation
+    {
+        // if ref_idx is greater than 1(from dense to sparse), use refract angle for cosine
+        auto f0 = (ref_idx - 1) / (ref_idx + 1);
+        f0 = f0 * f0;
+        if (ref_idx > 1.0)
+        {
+            double cosine2 = 1.0 - ref_idx * ref_idx * (1.0 - cosine * cosine);
+            if (cosine2 < 0.0)
+                return 1.0;
+            cosine = sqrt(cosine2);
+        }
+        return f0 + (1 - f0) * pow(1 - cosine, 5);
     }
 };
