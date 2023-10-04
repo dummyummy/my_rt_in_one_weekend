@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include "aabb.h"
 
 class material;
 
@@ -12,6 +13,7 @@ public:
     shared_ptr<material> mat;
     double t;
     bool front_face;
+    double u, v; // texture coordinates
 
     /**
      * @param outward_normal must be a unit vector
@@ -28,4 +30,5 @@ class hittable
 public:
     virtual ~hittable() = default;
     virtual bool hit(const ray &ray, interval ray_t, hit_record &rec) const = 0;
+    virtual aabb bound_box() const = 0;
 };

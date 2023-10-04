@@ -10,6 +10,7 @@ class hittable_list : public hittable
 {
 private:
     vector<shared_ptr<hittable>> objects;
+    aabb bbox;
 public:
     hittable_list() = default;
     hittable_list(const vector<std::shared_ptr<hittable>> &objects)
@@ -17,6 +18,11 @@ public:
     hittable_list(const shared_ptr<hittable> &object)
     {
         add(object);
+    }
+
+    const vector<shared_ptr<hittable>> &get_objects() const
+    {
+        return objects;
     }
 
     void clear()
@@ -27,6 +33,12 @@ public:
     void add(const std::shared_ptr<hittable> &object)
     {
         objects.push_back(object);
+        bbox = aabb(bbox, object->bound_box());
+    }
+
+    aabb bound_box() const override
+    {
+        return bbox;
     }
 
     bool hit(const ray &ray, interval ray_t, hit_record &rec) const override
