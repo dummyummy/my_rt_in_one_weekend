@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include "CImg.h"
 
 class texture
 {
@@ -49,4 +50,53 @@ private:
     double inv_scale;
     shared_ptr<texture> even;
     shared_ptr<texture> odd;
+};
+
+class image_texture: public texture
+{
+private:
+    cimg_library::CImg<unsigned char> image;
+    
+
+public:
+    image_texture(const std::string &filename)
+    {
+        if (load(filename)) return;
+        if (load("images/" + filename)) return;
+        if (load("../images/" + filename)) return;
+        if (load("../../images/" + filename)) return;
+        if (load("../../../images/" + filename)) return;
+        if (load("../../../../images/" + filename)) return;
+        std::cerr << "texture image "<< filename << "not found" << std::endl;
+    }
+
+    // load an image from path
+    bool load(const std::string &filepath)
+    {
+        try
+        {
+            image = std::move(cimg_library::CImg<unsigned char>(filepath.c_str()));
+        }
+        catch(const cimg_library::CImgIOException &e)
+        {
+            // std::cerr << e.what() << '\n';
+        }
+        return !image.is_empty();
+    }
+
+    // use bilinear interpolation to sample
+    color value(double u, double v, const point3 &p) const
+    {
+        if (image.is_empty())
+            return color(0, 1, 1);
+
+        u = image.width() * u;
+        v = (1 - v) * image.height();
+        auto pixel = color(image._linear_atXY(u, v, 0, 0), 
+                           image._linear_atXY(u, v, 0, 1),
+                           image._linear_atXY(u, v, 0, 2));
+
+        auto color_scale = 1.0 / 255;
+        return pixel * color_scale;
+    }
 };

@@ -27,9 +27,9 @@ private:
     {
         static double inv_pi = 1.0 / PI;
         auto theta = acos(-p.y());
-        auto phi = atan2(-p.z(), p.x());
+        auto phi = atan2(-p.z(), p.x()) + PI;
 
-        u = phi * inv_pi + 0.5;
+        u = phi * 0.5 * inv_pi;
         v = theta * inv_pi;
     }
 
