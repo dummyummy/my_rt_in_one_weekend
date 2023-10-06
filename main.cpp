@@ -145,9 +145,39 @@ void earth()
     image.save_png("globe.png");
 }
 
+void two_perlin_spheres()
+{
+    using namespace cimg_library;
+    hittable_list world;
+
+    auto pertext = make_shared<noise_texture>(3, 3.0, 4);
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
+    world.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
+
+    camera cam;
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 800;
+    cam.samples_per_row = 4;
+    cam.samples_per_subpixel = 4;
+    cam.max_depth = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(13, 2, 3);
+    cam.lookat = point3(0, 0, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.defocus_angle = 0;
+    cam.initialize();
+
+    CImg<unsigned char> image(cam.image_width, cam.image_height, 1, 3);
+    cam.render(image, world);
+    image.save_png("two_perlin_spheres.png");
+}
+
 int main()
 {
-    int scene_id = 3;
+    int scene_id = 4;
     switch (scene_id)
     {
     case 1:
@@ -158,6 +188,9 @@ int main()
         break;
     case 3:
         earth();
+        break;
+    case 4:
+        two_perlin_spheres();
         break;
     default:
         break;

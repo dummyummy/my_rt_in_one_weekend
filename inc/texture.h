@@ -2,6 +2,7 @@
 
 #include "utils.h"
 #include "CImg.h"
+#include "perlin.h"
 
 class texture
 {
@@ -85,7 +86,7 @@ public:
     }
 
     // use bilinear interpolation to sample
-    color value(double u, double v, const point3 &p) const
+    color value(double u, double v, const point3 &p) const override
     {
         if (image.is_empty())
             return color(0, 1, 1);
@@ -99,4 +100,22 @@ public:
         auto color_scale = 1.0 / 255;
         return pixel * color_scale;
     }
+};
+
+class noise_texture: public texture
+{
+public:
+    noise_texture(): freq(1.0), turb_scale(10.0), depth(7) {}
+    noise_texture(double freq, double turb_scale = 10.0, int depth = 7): freq(freq), turb_scale(turb_scale), depth(depth) {}
+
+    color value(double u, double v, const point3 &p) const override
+    {
+        auto scaled = freq * p;
+        return color(1, 1, 1) * 0.5 * (1 + sin(scaled.z() + turb_scale * noise.turb(scaled, depth)));
+    }
+private:
+    perlin noise;
+    double freq;
+    double turb_scale;
+    int depth;
 };

@@ -37,6 +37,8 @@ inline double random_double(double min, double max)
 // result is in [min, max]
 inline int random_int(int min, int max)
 {
+    if (min >= max)
+        return min;
     return static_cast<int>(random_double(min, max + 1));
 }
 
@@ -45,3 +47,9 @@ inline int random_int(int min, int max)
 #include "ray.h"
 #include "interval.h"
 #include "color.h"
+
+double smoothstep(double t1, double t2, double x)
+{
+    x = interval(0, 1).clamp((x - t1) / (t2 - t1));
+    return x * x * (3 - 2 * x);
+}
