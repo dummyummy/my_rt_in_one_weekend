@@ -8,13 +8,13 @@ public:
     double min, max;
 
     interval()
-    : min(+inf), max(-inf) {} // Empty by default
+        : min(+inf), max(-inf) {} // Empty by default
 
     interval(double min, double max)
-    : min(min), max(max) {}
+        : min(min), max(max) {}
 
     interval(const interval &a, const interval &b)
-    : min(fmin(a.min, b.min)), max(fmax(a.max, b.max)) {}
+        : min(fmin(a.min, b.min)), max(fmax(a.max, b.max)) {}
 
     bool contains(double x) const
     {
@@ -52,3 +52,13 @@ public:
 
 const interval interval::empty(inf, -inf);
 const interval interval::universe(-inf, inf);
+
+interval operator+(const interval &ival, double displacement)
+{
+    return interval(ival.min + displacement, ival.max + displacement);
+}
+
+interval operator+(double displacement, const interval &ival)
+{
+    return interval(ival.min + displacement, ival.max + displacement);
+}

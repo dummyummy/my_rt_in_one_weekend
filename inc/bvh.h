@@ -23,7 +23,7 @@ public:
     {
         static auto comp_func = [](const shared_ptr<hittable> a, const shared_ptr<hittable> b, int ax) -> bool
         {
-            return a->bound_box().axis(ax).min < b->bound_box().axis(ax).min;
+            return a->bounding_box().axis(ax).min < b->bounding_box().axis(ax).min;
         };
         static auto comp_x = std::bind(comp_func, std::placeholders::_1, std::placeholders::_2, 0);
         static auto comp_y = std::bind(comp_func, std::placeholders::_1, std::placeholders::_2, 1);
@@ -55,7 +55,7 @@ public:
             left = make_shared<bvh_node>(objects, 0, mid);
             right = make_shared<bvh_node>(objects, mid, object_span);
         }
-        bbox = aabb(left->bound_box(), right->bound_box());
+        bbox = aabb(left->bounding_box(), right->bounding_box());
     }
 
     bool hit(const ray &ray, interval ray_t, hit_record &rec) const
@@ -68,7 +68,7 @@ public:
         return hit_left || hit_right;
     }
 
-    aabb bound_box() const
+    aabb bounding_box() const
     {
         return bbox;
     }

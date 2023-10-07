@@ -79,7 +79,7 @@ public:
         return true;
     }
 
-    aabb bound_box() const
+    aabb bounding_box() const
     {
         return bbox;
     }

@@ -26,6 +26,7 @@ public:
     vec3 vup = vec3(0, 1, 0);
     double defocus_angle = 0;
     double focus_dist = 10;
+    color background;
 
     void render(cimg_library::CImg<unsigned char> &image, const hittable &world, int n_workers = 0) const
     {
@@ -74,8 +75,8 @@ public:
             indicators::ProgressBar bar{
                 option::BarWidth{50},
                 option::Start{" ["},
-                option::Fill{"¨€"},
-                option::Lead{"¨€"},
+                option::Fill{"¡ö"},
+                option::Lead{"¡ö"},
                 option::Remainder{"-"},
                 option::End{"]"},
                 option::ShowPercentage{true},
@@ -216,13 +217,13 @@ private:
         {
             ray scattered;
             color attenuation;
+            color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+
             if (rec.mat->scattered(r, rec, attenuation, scattered))
-                return attenuation * ray_color(scattered, depth - 1, world);
+                return color_from_emission + attenuation * ray_color(scattered, depth - 1, world);
             else
-                return color(0, 0, 0);
+                return color_from_emission;
         }
-        auto dir = unit(r.direction());
-        double a = (dir.y() + 1) * 0.5;
-        return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+        return background;
     }
 };

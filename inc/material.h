@@ -6,10 +6,19 @@
 
 class material
 {
+protected:
+    bool emitting_flag = false;
 public:
     virtual ~material() = default;
-
+    virtual color emitted(double u, double v, const point3 &p) const
+    {
+        return color(0, 0, 0);
+    }
     virtual bool scattered(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const = 0;
+    virtual bool is_emitting() const
+    {
+        return emitting_flag;
+    }
 };
 
 class lambertian: public material
@@ -88,5 +97,41 @@ private:
             cosine = sqrt(cosine2);
         }
         return f0 + (1 - f0) * pow(1 - cosine, 5);
+    }
+};
+
+class diffuse_light: public material
+{
+private:
+    shared_ptr<texture> emit;
+public:
+    diffuse_light(shared_ptr<texture> a) : emit(a) { emitting_flag = true; }
+    diffuse_light(color c) : emit(make_shared<solid_color>(c)) { emitting_flag = true; }
+
+    bool scattered(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override
+    {
+        return false;
+    }
+
+    color emitted(double u, double v, const point3 &p) const override
+    {
+        return emit->value(u, v, p);
+    }
+};
+
+class isotropic : public material
+{
+private:
+    shared_ptr<texture> albedo;
+
+public:
+    isotropic(color c) : albedo(make_shared<solid_color>(c)) {}
+    isotropic(shared_ptr<texture> a) : albedo(a) {}
+
+    bool scattered(const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override
+    {
+        scattered = ray(rec.p, random_unit_vector(), r_in.time());
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
+        return true;
     }
 };

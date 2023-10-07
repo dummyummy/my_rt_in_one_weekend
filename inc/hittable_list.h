@@ -33,10 +33,10 @@ public:
     void add(const std::shared_ptr<hittable> &object)
     {
         objects.push_back(object);
-        bbox = aabb(bbox, object->bound_box());
+        bbox = aabb(bbox, object->bounding_box());
     }
 
-    aabb bound_box() const override
+    aabb bounding_box() const override
     {
         return bbox;
     }
